@@ -1,0 +1,37 @@
+version: '3'
+
+services:
+  identity-broker:
+    image: quay.io/keycloak/keycloak:22.0.1
+    container_name: identity-broker
+    network_mode: 'host'
+    # ports:
+    #   - '8080:8080'
+    command: ["-v start-dev", "--import-realm"]
+    volumes:
+      - ./keycloak-configs/identity-broker:/opt/keycloak/data/import
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+  
+  identity-provider:
+    image: quay.io/keycloak/keycloak:22.0.1
+    container_name: identity-provider
+    network_mode: 'host'
+    # ports:
+    #   - '9090:9090'
+    command: ["-v start-dev", "--import-realm", "--http-port=9090"]
+    volumes:
+      - ./keycloak-configs/identity-provider:/opt/keycloak/data/import
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+  
+  web-ui:
+    image: nginx:alpine
+    container_name: web-ui
+    network_mode: 'host'
+    # ports:
+    #   - '80:80'
+    volumes:
+      - ./build:/usr/share/nginx/html
